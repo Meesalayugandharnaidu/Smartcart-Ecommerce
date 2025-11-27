@@ -1,0 +1,139 @@
+{% extends "base.html" %} {% block content %}
+
+<style>
+  .add-product-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9fa;
+  }
+
+  .add-product-card {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffff;
+    padding: 25px 28px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 12px rgba(5, 44, 101, 0.15);
+    animation: fadeIn 0.4s ease-in;
+  }
+
+  .add-product-card h2 {
+    color: #052c65;
+    font-weight: 600;
+  }
+
+  .btn-custom {
+    background-color: #052c65;
+    color: #fff;
+    font-weight: 500;
+    border-radius: 10px;
+  }
+
+  .btn-custom:hover {
+    background-color: #063776;
+    color: #fff;
+  }
+
+  .back-link a {
+    text-decoration: none;
+    font-weight: 500;
+    color: #052c65;
+  }
+
+  .back-link a:hover {
+    text-decoration: underline;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<div class="add-product-container">
+  <div class="add-product-card">
+    <h2 class="text-center mb-4">Add New Product</h2>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %} {% for
+    category, message in messages %}
+    <div class="alert alert-success text-center py-2 small">{{ message }}</div>
+    {% endfor %} {% endwith %}
+
+    <form method="POST" action="/admin/add-item" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label class="form-label">Product Name</label>
+        <input
+          type="text"
+          name="name"
+          class="form-control"
+          placeholder="Enter product name"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea
+          name="description"
+          class="form-control"
+          rows="3"
+          placeholder="Enter product description"
+          required
+        ></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Category</label>
+        <input
+          type="text"
+          name="category"
+          class="form-control"
+          placeholder="Enter category"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Price (₹)</label>
+        <input
+          type="number"
+          step="0.01"
+          name="price"
+          class="form-control"
+          placeholder="Enter price"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Product Image</label>
+        <input
+          type="file"
+          name="image"
+          class="form-control"
+          accept="image/*"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-custom w-100 mt-2">
+        Add Product
+      </button>
+    </form>
+
+    <div class="text-center mt-3 back-link">
+      <a href="/admin-dashboard">← Back to Dashboard</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %} {% block title %}Verify OTP{% endblock %} {% block
+content %}
+
+<style>
+  body {
+    background-color: #f6f7fb;
+  }
+
+  .otp-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 25px 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  }
+
+  .title-text {
+    color: #052c65;
+    font-weight: bold;
+  }
+
+  .btn-custom {
+    background-color: #052c65;
+    color: #fff;
+    font-weight: 500;
+  }
+
+  .btn-custom:hover {
+    background-color: #063776;
+    color: #fff;
+  }
+
+  .form-label {
+    font-weight: 600;
+  }
+
+  input {
+    height: 42px;
+  }
+
+  .flash-msg {
+    font-size: 14px;
+  }
+</style>
+
+<div
+  class="container d-flex justify-content-center align-items-center"
+  style="min-height: 90vh"
+>
+  <div class="col-lg-4 col-md-6 col-sm-10">
+    <div class="otp-card">
+      <h3 class="text-center mb-3 title-text">
+        <i class="fa-solid fa-shield-halved"></i> Verify OTP
+      </h3>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div class="alert alert-danger text-center flash-msg py-2">
+        {{ message }}
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <form method="POST" action="/verify-otp">
+        <label class="form-label">Enter OTP</label>
+        <input
+          type="text"
+          name="otp"
+          class="form-control mb-3"
+          placeholder="XXXX"
+          required
+        />
+
+        <label class="form-label">Create Password</label>
+        <input
+          type="password"
+          name="password"
+          class="form-control mb-4"
+          placeholder="Enter new password"
+          required
+        />
+
+        <button type="submit" class="btn btn-custom w-100">
+          <i class="fa-solid fa-check"></i> Verify & Register
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Hide flash message smoothly
+  setTimeout(() => {
+    document.querySelectorAll(".flash-msg").forEach((msg) => {
+      msg.style.transition = "opacity 0.8s";
+      msg.style.opacity = "0";
+      setTimeout(() => msg.remove(), 600);
+    });
+  }, 2000);
+</script>
+
+{% endblock %}

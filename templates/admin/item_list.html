@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  body {
+    background-color: #f6f7fb;
+  }
+
+  .card-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0px 6px 14px rgba(6, 6, 105, 0.20);
+    margin-top: 40px;
+  }
+
+  h2 {
+    color: #052c65;
+    font-weight: 700;
+  }
+
+  .btn-custom {
+    background-color: #052c65;
+    color: #fff;
+    border-radius: 8px;
+    padding: 5px 20px;
+    transition: 0.3s;
+  }
+
+  .btn-custom:hover {
+    background-color: #081e3a;
+    color: #fff;
+  }
+
+  img.product-img {
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    object-fit: cover;
+  }
+
+  .search-box input,
+  .search-box select {
+    border: 2px solid #052c65;
+    border-radius: 8px;
+    padding: 6px;
+    height: 38px;
+  }
+
+  .table-head-custom {
+    background-color: #052c65 !important;
+    color: white !important;
+  }
+
+  .flash-msg {
+    font-size: 13px;
+    padding: 5px 10px;
+    margin-top: 5px;
+  }
+</style>
+
+<div class="container">
+  <div class="card-box">
+
+    <h2 class="text-center mb-4"><i class="fa-solid fa-list me-2"></i> Product List</h2>
+
+    <!-- Flash Messages -->
+    <div>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+      <div class="alert alert-success text-center py-1 small flash-msg">{{ message }}</div>
+      {% endfor %}
+      {% endwith %}
+    </div>
+
+    <!-- Search & Filter Section -->
+    <div class="row mb-3 search-box">
+
+      <!-- Search Form -->
+      <div class="col-md-6 mb-2">
+        <form method="GET" action="/admin/item-list" class="d-flex">
+          <input type="text" class="form-control me-2" name="search" placeholder="Search product..."
+            value="{{ request.args.get('search','') }}">
+          <button class="btn btn-custom" type="submit">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- Category Filter -->
+      <div class="col-md-6 mb-2">
+        <form method="GET" action="/admin/item-list" class="d-flex">
+          <select name="category" class="form-control me-2">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat.category }}" {% if request.args.get('category')==cat.category %} selected {% endif %}>
+              {{ cat.category }}
+            </option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-custom" type="submit">Filter</button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Buttons Row -->
+    <div class="d-flex justify-content-between flex-wrap mb-3">
+      <a href="/admin-dashboard" class="btn btn-success mt-2">
+        <i class="fa-solid fa-arrow-left"></i> Back To Dashboard
+      </a>
+
+      <a href="/admin/add-item" class="btn btn-success mt-2">
+        <i class="fa-solid fa-plus"></i> Add New Product
+      </a>
+    </div>
+
+    <!-- Product Table -->
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped text-center align-middle">
+        <thead class="table-head-custom">
+          <tr>
+            <th>ID</th>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>View</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for product in products %}
+          <tr>
+            <td>{{ product.product_id }}</td>
+
+            <td>
+              <img src="/static/uploads/product_images/{{ product.image }}" class="product-img" width="70" height="70">
+            </td>
+
+            <td>{{ product.name }}</td>
+            <td>{{ product.category }}</td>
+            <td><span class="text-success fw-bold">₹{{ product.price }}</span></td>
+
+            <td>
+              <a href="/admin/view-item/{{ product.product_id }}" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-eye"></i> View
+              </a>
+            </td>
+
+            <td>
+              <a href="/admin/delete-item/{{ product.product_id }}"
+                onclick="return confirm('Are you sure you want to delete this product?')"
+                class="btn btn-danger btn-sm">
+                <i class="fa-solid fa-trash"></i> Delete
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  setTimeout(() => {
+    const msg = document.querySelector('.flash-msg');
+    if (msg) {
+      msg.style.transition = "opacity 0.8s";
+      msg.style.opacity = "0";
+      setTimeout(() => msg.remove(), 500);
+    }
+  }, 2500);
+</script>
+
+{% endblock %}

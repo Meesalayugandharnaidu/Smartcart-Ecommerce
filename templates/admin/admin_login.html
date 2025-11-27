@@ -1,0 +1,115 @@
+{% extends "base.html" %} {% block content %}
+
+<style>
+  body {
+    background: #f2f6ff;
+    font-family: "Poppins", sans-serif;
+  }
+
+  .login-wrapper {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-card {
+    background: #fff;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 18px;
+    padding: 35px 30px;
+    box-shadow: 0 8px 18px rgba(0, 56, 255, 0.15);
+    border-bottom: 4px solid #0027cb;
+    transition: 0.3s;
+  }
+
+  .login-card:hover {
+    box-shadow: 0 12px 25px rgba(0, 56, 255, 0.28);
+    transform: translateY(-4px);
+  }
+
+  .login-card h3 {
+    font-weight: 700;
+    color: #0027cb;
+  }
+
+  .login-input {
+    height: 46px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 2px solid #004effa4;
+    outline: none;
+    font-size: 15px;
+  }
+
+  .login-input:focus {
+    border-color: #001dbb;
+    box-shadow: 0 0 4px rgba(0, 41, 200, 0.3);
+  }
+
+  .btn-login {
+    background: #0027cb;
+    border-radius: 12px;
+    padding: 12px 0;
+    font-size: 17px;
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    transition: 0.3s;
+  }
+
+  .btn-login:hover {
+    background: #001799;
+  }
+
+  .btn-register {
+    margin-top: 10px;
+    display: block;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 10px;
+    font-weight: 600;
+    color: #340086ff;
+    transition: 0.3s;
+  }
+</style>
+
+<div class="login-wrapper">
+  <div class="login-card">
+    <h3 class="text-center mb-4">Admin Login</h3>
+
+    {% with messages = get_flashed_messages(with_categories=true) %} {% for
+    category, message in messages %}
+    <p class="text-success text-center">{{ message }}</p>
+    {% endfor %} {% endwith %}
+
+    <form method="POST" action="/admin-login">
+      <div class="mb-4">
+        <input
+          type="email"
+          class="form-control login-input"
+          name="Email"
+          placeholder="Enter Email"
+          required
+        />
+      </div>
+
+      <div class="mb-4">
+        <input
+          type="password"
+          class="form-control login-input"
+          name="Password"
+          placeholder="Enter Password"
+          required
+        />
+      </div>
+
+      <button class="btn-login w-100" type="submit">Login</button>
+    </form>
+
+    <a href="/admin-signup" class="btn-register">← New ? Register Admin</a>
+  </div>
+</div>
+
+{% endblock %}

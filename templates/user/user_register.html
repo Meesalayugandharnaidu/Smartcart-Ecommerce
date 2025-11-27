@@ -1,0 +1,142 @@
+{% extends "base.html" %} {% block content %}
+
+<style>
+  body {
+    background-color:#fff/* green gradient */
+    font-family: "Poppins", sans-serif;
+  }
+
+  .register-wrapper {
+    min-height: 85vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .register-card {
+    width: 100%;
+    max-width: 450px;
+    border-radius: 20px;
+    background: #fff;
+    padding: 30px 35px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    transition: 0.2s ease-in-out;
+  }
+
+  .register-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  }
+
+  .register-title {
+    font-weight: 700;
+    color: #093ff0ff;
+  }
+
+  .form-control {
+    height: 45px;
+    border-radius: 10px;
+  }
+
+  .btn-register {
+    height: 45px;
+    border-radius: 10px;
+    background: #062ee0ff;
+    border: none;
+    font-weight: 600;
+    transition: 0.3s ease-in-out;
+  }
+
+  .btn-register:hover {
+    background: #1f873b;
+  }
+
+  .login-link {
+    color: #28a745;
+    font-weight: 600;
+  }
+
+  .login-link:hover {
+    text-decoration: underline;
+    color: #2911fcff;
+  }
+</style>
+
+<!-- Flash Alerts -->
+{% with messages = get_flashed_messages(with_categories=true) %} {% if messages
+%} {% for category, message in messages %}
+<div
+  class="alert alert-{{ category }} alert-dismissible fade show position-fixed top-0 end-0 m-3 shadow"
+  style="min-width: 250px; z-index: 9999"
+  role="alert"
+>
+  <strong>{{ message }}</strong>
+  <button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="alert"
+    aria-label="Close"
+  ></button>
+</div>
+{% endfor %} {% endif %} {% endwith %}
+
+<!-- Register Section -->
+<div class="register-wrapper">
+  <div class="register-card">
+    <h3 class="text-center mb-4 register-title">User Registration</h3>
+
+    <form method="POST" action="/user-register">
+      <div class="mb-3">
+        <input
+          type="text"
+          name="name"
+          class="form-control"
+          placeholder="Enter your name"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <input
+          type="email"
+          name="email"
+          class="form-control"
+          placeholder="Enter your email"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <input
+          type="password"
+          name="password"
+          class="form-control"
+          placeholder="Enter password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-register w-100 text-white">
+        Register
+      </button>
+    </form>
+
+    <div class="text-center mt-3">
+      <a href="/user-login" class="login-link"
+        >Already have an account? Login</a
+      >
+    </div>
+  </div>
+</div>
+
+<script>
+  setTimeout(() => {
+    document.querySelectorAll(".alert").forEach((alert) => {
+      const bsAlert = new bootstrap.Alert(alert);
+      bsAlert.close();
+    });
+  }, 3000);
+</script>
+
+{% endblock %}

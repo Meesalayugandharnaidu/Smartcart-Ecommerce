@@ -1,0 +1,154 @@
+{% extends "base.html" %} {% block content %}
+
+<style>
+  body {
+    background: #f2f6ff;
+    font-family: "Poppins", sans-serif;
+  }
+
+  .profile-wrapper {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .profile-card {
+    background: #fff;
+    width: 100%;
+    max-width: 620px;
+    border-radius: 18px;
+    padding: 30px 25px;
+    box-shadow: 0 8px 18px rgba(0, 56, 255, 0.1);
+    border-bottom: 4px solid #0027cb;
+  }
+
+  .profile-card:hover {
+    box-shadow: 0 12px 28px rgba(0, 56, 255, 0.2);
+  }
+
+  .profile-card h2 {
+    font-weight: 700;
+    color: #0027cb;
+  }
+
+  .profile-img {
+    width: 135px;
+    height: 135px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #001e7b;
+    box-shadow: 0 4px 12px rgba(0, 0, 80, 0.18);
+  }
+
+  .btn-profile {
+    background: #0027cb;
+    color: white;
+    font-weight: 600;
+    padding: 10px 0;
+    border-radius: 12px;
+    border: none;
+    transition: 0.3s;
+  }
+
+  .btn-profile:hover {
+    background: #001799;
+  }
+
+  .back-link {
+    font-weight: 600;
+    color: #0027cb;
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .form-control {
+    border-radius: 12px;
+    padding: 12px;
+    border: 2px solid #0033ff40;
+  }
+
+  .form-control:focus {
+    border-color: #0027cb;
+    box-shadow: 0 0 4px rgba(0, 41, 200, 0.3);
+  }
+</style>
+
+<div class="profile-wrapper">
+  <div class="profile-card">
+    <h2 class="text-center mb-4">Admin Profile</h2>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %} {% for
+    category, message in messages %}
+    <div class="alert alert-success text-center py-2 small">{{ message }}</div>
+    {% endfor %} {% endwith %}
+
+    <div class="text-center mb-3">
+      {% if admin.profile_image %}
+      <img
+        src="/static/uploads/admin_profiles/{{ admin.profile_image }}"
+        class="profile-img"
+      />
+      {% else %}
+      <img src="https://via.placeholder.com/135" class="profile-img" />
+      <p class="small text-muted">No Profile Image Uploaded</p>
+      {% endif %}
+    </div>
+
+    <form method="POST" action="/admin/profile" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label class="form-label">Name</label>
+        <input
+          type="text"
+          name="name"
+          value="{{ admin.name }}"
+          class="form-control"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input
+          type="email"
+          name="email"
+          value="{{ admin.email }}"
+          class="form-control"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">New Password (optional)</label>
+        <input
+          type="password"
+          name="password"
+          class="form-control"
+          placeholder="Enter new password"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Upload New Profile Image (optional)</label>
+        <input
+          type="file"
+          name="profile_image"
+          accept="image/*"
+          class="form-control"
+        />
+      </div>
+
+      <button type="submit" class="btn-profile w-100">Update Profile</button>
+    </form>
+
+    <div class="text-center mt-3">
+      <a href="/admin-dashboard" class="back-link">← Back to Dashboard</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

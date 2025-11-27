@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ title if title else "SmartCart" }}</title>
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- FontAwesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
+
+    <style>
+      /* ==================== NAVBAR ==================== */
+      .navbar-custom {
+        background: linear-gradient(45deg, #0048ff, #1e90ff);
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .navbar-custom .navbar-brand {
+        color: #fff !important;
+        font-weight: 700;
+        font-size: 22px;
+        letter-spacing: 1px;
+        transition: 0.3s;
+      }
+
+      .navbar-custom .navbar-brand:hover {
+        text-shadow: 0 0 8px #fff;
+      }
+
+      .navbar-custom .nav-link {
+        color: #fff !important;
+        font-weight: 600;
+        transition: 0.3s;
+      }
+
+      .navbar-custom .nav-link:hover {
+        color: #fffa !important;
+        transform: scale(1.05);
+      }
+
+      /* ==================== SEARCH BOX ==================== */
+      .search-box {
+        border-radius: 25px;
+        padding-left: 15px;
+        background: #fff;
+        border: 2px solid transparent;
+        transition: 0.3s;
+      }
+
+      .search-box:focus {
+        border-color: #003bb9;
+        box-shadow: 0 0 8px rgba(0, 59, 185, 0.6);
+      }
+
+      .search-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #003bb9;
+        font-size: 17px;
+      }
+
+      /* ==================== NAV ICON BUTTONS ==================== */
+      .nav-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 35px;
+        color: #0048ff !important;
+        box-shadow: 3 3px 6px rgba(255, 255, 255, 0.4);
+        margin-left: 18px;
+        transition: 0.3s ease;
+      }
+
+      .nav-icon:hover {
+        background: #0c09bbff;
+        transform: translateY(-3px);
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        color: black;
+      }
+
+      /* ==================== FOOTER ==================== */
+      .footer {
+        background: #000;
+        color: #fff;
+        padding: 28px 0;
+        margin-top: 100px;
+      }
+
+      .footer a {
+        color: #cfcfcf;
+        text-decoration: none;
+        transition: 0.3s;
+      }
+
+      .footer a:hover {
+        color: #fff;
+        text-decoration: underline;
+      }
+
+      /* ==================== FLASH ==================== */
+      .alert {
+        border-radius: 10px;
+        font-weight: 500;
+      }
+
+      /* ==================== RESPONSIVE FIXES ==================== */
+      @media (max-width: 992px) {
+        .nav-icon {
+          margin-left: 0;
+          margin-top: 10px;
+        }
+
+        .navbar-custom .nav-link {
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+      <div class="container">
+        <a class="navbar-brand" href="/">SmartCart</a>
+
+        <button
+          class="navbar-toggler border-0 text-white"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarMenu"
+        >
+          <i class="fa-solid fa-bars" style="color: white; font-size: 22px"></i>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMenu">
+          <!-- SEARCH BAR -->
+          <form
+            method="GET"
+            action="/user/products"
+            class="d-flex ms-lg-4 w-100 my-3 my-lg-0 position-relative"
+          >
+            <input
+              type="text"
+              name="search"
+              class="form-control search-box"
+              placeholder="Search products..."
+              value="{{ request.args.get('search', '') }}"
+            />
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          </form>
+
+          <!-- RIGHT NAV ICONS -->
+          <ul class="navbar-nav ms-lg-auto mt-2 mt-lg-0">
+            <li class="nav-item">
+              <a class="nav-link nav-icon" href="/user-login" title="Login">
+                <i class="fa-solid fa-user"></i>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link nav-icon" href="/user/cart" title="Cart">
+                <i class="fa-solid fa-cart-shopping"></i>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a
+                class="nav-link nav-icon"
+                href="/user-dashboard"
+                title="Dashboard"
+              >
+                <i class="fa-regular fa-circle-user"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+      {% for category, message in messages %}
+      <div
+        class="alert alert-{{ category }} alert-dismissible fade show shadow"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %} {% endwith %}
+
+    <!-- PAGE CONTENT -->
+    <div class="container mt-4">{% block content %}{% endblock %}</div>
+
+    <!-- FOOTER -->
+    <footer class="footer mt-auto">
+      <div class="container text-center">
+        <p>© 2025 SmartCart. All Rights Reserved.</p>
+        <a href="#">Terms</a> &nbsp; <a href="#">Privacy</a> &nbsp;
+        <a href="#">Contact</a>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,101 @@
+\{% extends "base.html" %} {% block content %}
+
+<style>
+  .signup-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff;
+  }
+
+  .signup-card {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    padding: 30px 30px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 12px rgba(6, 6, 105, 0.25);
+    animation: fadeIn 0.4s ease-in;
+  }
+
+  .signup-card h3 {
+    color: rgba(6, 6, 105, 0.897);
+    font-weight: 600;
+  }
+
+  .input-custom {
+    border: 2px solid rgba(6, 6, 105, 0.897);
+    height: 42px;
+    border-radius: 10px;
+    padding-left: 10px;
+    color: rgba(6, 6, 105, 0.7);
+  }
+
+  .input-custom::placeholder {
+    color: rgba(6, 6, 105, 0.6);
+  }
+
+  .btn-custom {
+    background-color: rgba(6, 6, 105, 0.897);
+    color: #fff;
+    height: 42px;
+    border-radius: 10px;
+    font-weight: 500;
+    box-shadow: 4px 4px 10px rgba(6, 6, 105, 0.25);
+  }
+
+  .btn-custom:hover {
+    background-color: rgb(6, 6, 105);
+    color: #ffffff;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<div class="signup-container">
+  <div class="signup-card">
+    <h3 class="text-center mb-4">Admin Registration</h3>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %} {% for
+    category, message in messages %}
+    <div class="alert alert-danger text-center py-2 small">{{ message }}</div>
+    {% endfor %} {% endwith %}
+
+    <form method="POST" action="/admin-signup">
+      <div class="mb-4">
+        <input
+          type="text"
+          name="name"
+          class="form-control input-custom"
+          placeholder="Name"
+          required
+        />
+      </div>
+
+      <div class="mb-4">
+        <input
+          type="email"
+          name="email"
+          class="form-control input-custom"
+          placeholder="Email"
+          required
+        />
+      </div>
+
+      <button class="btn btn-custom w-100" type="submit">Send OTP</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

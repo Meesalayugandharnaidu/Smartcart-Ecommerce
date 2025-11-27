@@ -1,0 +1,109 @@
+{% extends "base.html" %} {% block content %}
+
+<style>
+  .dashboard-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 80px;
+    background-color: #f7f9fc;
+  }
+
+  .dashboard-card {
+    width: 100%;
+    max-width: 450px;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 14px rgba(6, 6, 105, 0.2);
+    animation: fadeIn 0.4s ease-in-out;
+  }
+
+  .welcome-text {
+    font-weight: bold;
+    color: #052c65;
+    font-size: 1.2rem;
+  }
+
+  .btn-custom {
+    background-color: #052c65;
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 18px;
+    transition: 0.3s;
+    font-weight: 500;
+    box-shadow: 3px 3px 10px rgba(6, 6, 105, 0.2);
+  }
+
+  .btn-custom:hover {
+    background-color: #081e3a;
+    color: #fff;
+  }
+
+  .logout-btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 10px 18px;
+  }
+
+  .auto-hide-alert {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<!-- Flash Messages -->
+<div class="container mt-3">
+  {% with messages = get_flashed_messages(with_categories=true) %} {% for
+  category, message in messages %}
+  <div class="alert alert-success text-center small auto-hide-alert">
+    {{ message }}
+  </div>
+  {% endfor %} {% endwith %}
+</div>
+
+<div class="dashboard-container">
+  <div class="dashboard-card text-center">
+    <h5 class="welcome-text mb-2">Welcome, {{ admin_name }}</h5>
+    <p class="text-muted mb-3">This is your admin dashboard.</p>
+    <hr />
+
+    <div class="d-grid gap-3 mt-4">
+      <a href="/admin/profile" class="btn btn-custom">
+        <i class="fa-solid fa-circle-user me-2"></i>Admin Profile
+      </a>
+
+      <a href="/admin/add-item" class="btn btn-custom">
+        <i class="fa-solid fa-pen me-2"></i>Add Item
+      </a>
+
+      <a href="/admin/item-list" class="btn btn-custom">
+        <i class="fa-solid fa-file me-2"></i>View Items
+      </a>
+
+      <a href="/admin-logout" class="btn btn-danger logout-btn">
+        <i class="fa-solid fa-right-to-bracket me-2"></i>Logout
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  setTimeout(() => {
+    document.querySelectorAll(".auto-hide-alert").forEach((el) => el.remove());
+  }, 2000);
+</script>
+
+{% endblock %}

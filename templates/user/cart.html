@@ -1,0 +1,142 @@
+{% extends "base.html" %} {% block content %}
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+/>
+
+<style>
+  /* CART CUSTOM STYLES */
+  .cart-title i {
+    color: #0d6efd;
+  }
+
+  .cart-table img {
+    border-radius: 10px;
+    transition: transform 0.2s;
+  }
+
+  .cart-table img:hover {
+    transform: scale(1.1);
+  }
+
+  .cart-table th {
+    font-weight: bold;
+    font-size: 15px;
+  }
+
+  .quantity-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+  }
+
+  /* TOTAL AND BUTTONS */
+  .btn-pay {
+    font-weight: bold;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-pay:hover {
+    background: #198754;
+    color: #fff;
+  }
+
+  /* MOBILE RESPONSIVE */
+  @media (max-width: 768px) {
+    .cart-table {
+      font-size: 13px;
+    }
+    .cart-table img {
+      width: 60px;
+    }
+    .quantity-btn {
+      width: 25px;
+      height: 25px;
+      font-size: 12px;
+    }
+  }
+</style>
+
+<h4 class="text-success mb-3 cart-title">
+  Your Cart <i class="fa-solid fa-cart-shopping"></i>
+</h4>
+
+{% if not cart %}
+<div class="alert alert-warning text-center p-4 rounded shadow-sm">
+  <h5>Your cart is empty 😕</h5>
+  <a class="btn btn-success mt-3 px-4" href="/user/products">Shop Now</a>
+</div>
+
+{% else %}
+<div class="table-responsive">
+  <table
+    class="table table-bordered table-hover align-middle text-center cart-table shadow-sm"
+  >
+    <thead class="table-dark">
+      <tr>
+        <th>Image</th>
+        <th>Name</th>
+        <th>Price (₹)</th>
+        <th>Quantity</th>
+        <th>Total (₹)</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for pid, item in cart.items() %}
+      <tr>
+        <td>
+          <img
+            src="/static/uploads/product_images/{{ item.image }}"
+            width="80"
+          />
+        </td>
+        <td class="fw-bold">{{ item.name }}</td>
+        <td>₹ {{ item.price }}</td>
+
+        <td>
+          <a
+            class="btn btn-sm btn-danger quantity-btn"
+            href="/user/cart/decrease/{{ pid }}"
+            >-</a
+          >
+          <span class="mx-2 fw-bold">{{ item.quantity }}</span>
+          <a
+            class="btn btn-sm btn-success quantity-btn"
+            href="/user/cart/increase/{{ pid }}"
+            >+</a
+          >
+        </td>
+
+        <td class="fw-bold">₹ {{ item.price * item.quantity }}</td>
+
+        <td>
+          <a
+            class="btn btn-sm btn-outline-danger"
+            href="/user/cart/remove/{{ pid }}"
+          >
+            <i class="fa-solid fa-trash"></i>
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h5 class="text-end text-success fw-bold mt-3">
+  Grand Total: <span class="text-dark">₹ {{ grand_total }}</span>
+</h5>
+
+<div class="d-flex justify-content-between mt-4 mb-3">
+  <a href="/user/products" class="btn btn-success">
+    <i class="fa-solid fa-arrow-left"></i> Continue Shopping
+  </a>
+  <a href="/user/pay" class="btn btn-primary btn-pay">
+    <i class="fa-solid fa-bolt"></i> Pay ₹ {{ grand_total }}
+  </a>
+</div>
+
+{% endif %} {% endblock %}

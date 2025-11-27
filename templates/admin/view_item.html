@@ -1,0 +1,94 @@
+{% extends "base.html" %} {% block title %}Product Details{% endblock %} {%
+block content %}
+
+<style>
+  body {
+    background-color: #f6f7fb;
+  }
+
+  .product-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 20px 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  }
+
+  .product-title {
+    color: #052c65;
+    font-weight: 700;
+  }
+
+  .product-img {
+    border-radius: 10px;
+    border: 3px solid #ddd;
+    padding: 5px;
+    background: #fff;
+  }
+
+  .btn-custom {
+    background-color: #052c65;
+    color: #fff;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-weight: 500;
+    transition: 0.3s ease-in-out;
+  }
+
+  .btn-custom:hover {
+    background-color: #081e3a;
+    color: #fff;
+  }
+
+  .back-link {
+    text-decoration: none;
+    font-weight: 600;
+    color: #052c65;
+  }
+
+  .back-link:hover {
+    color: #081e3a;
+    text-decoration: underline;
+  }
+</style>
+
+<div
+  class="container d-flex justify-content-center align-items-center"
+  style="min-height: 90vh"
+>
+  <div class="col-lg-4 col-md-6 col-sm-10">
+    <div class="product-card text-center">
+      <h4 class="product-title mb-3">
+        <i class="fa-solid fa-box-open"></i> Product Details
+      </h4>
+
+      <!-- Product Image -->
+      <img
+        src="/static/uploads/product_images/{{ product.image }}"
+        class="img-fluid product-img mb-3"
+      />
+
+      <!-- Product Info -->
+      <p><strong>Name:</strong> {{ product.name }}</p>
+      <p><strong>Description:</strong> {{ product.description }}</p>
+      <p><strong>Category:</strong> {{ product.category }}</p>
+      <p>
+        <strong>Price:</strong>
+        <span class="text-success fw-bold">₹{{ product.price }}</span>
+      </p>
+
+      <a
+        href="/admin/update-item/{{ product.product_id }}"
+        class="btn btn-custom mt-2"
+      >
+        ✏️ Update Product
+      </a>
+
+      <hr />
+
+      <!-- Back Button -->
+      <a href="/admin/item-list" class="back-link">← Back to Product List</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
