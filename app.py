@@ -45,7 +45,7 @@ mail = Mail(app)
 
 @app.route('/')
 def home():
-    return render_template('user/user_products.html')
+    return redirect('user/products?category=')
 
 # ROUTE 1: ADMIN SIGNUP (SEND OTP)
 # ----------------------------------------

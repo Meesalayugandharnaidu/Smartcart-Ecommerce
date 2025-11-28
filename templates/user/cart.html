@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block content %}
+{% extends "index.html" %} {% block content %}
 
 <link
   rel="stylesheet"
@@ -58,9 +58,7 @@
   }
 </style>
 
-<h4 class="text-success mb-3 cart-title">
-  Your Cart <i class="fa-solid fa-cart-shopping"></i>
-</h4>
+<h5 class="text-success mb-3 cart-title">Shopping Cart</h5>
 
 {% if not cart %}
 <div class="alert alert-warning text-center p-4 rounded shadow-sm">

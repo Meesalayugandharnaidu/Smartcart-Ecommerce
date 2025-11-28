@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block content %}
+{% extends "index.html" %} {% block content %}
 
 <style>
   /* MAIN BOX */
@@ -103,7 +103,11 @@
   <div class="row product-box">
     <!-- PRODUCT IMAGE -->
     <div class="col-md-6 text-center">
-      <img src="/static/uploads/product_images/{{ product.image }}" alt="{{ product.name }}" class="product-img" />
+      <img
+        src="/static/uploads/product_images/{{ product.image }}"
+        alt="{{ product.name }}"
+        class="product-img"
+      />
 
       <!-- BUTTONS -->
       <div class="row mt-4">
@@ -134,8 +138,9 @@
       <!-- RATING FIXED -->
       <div class="d-flex align-items-center">
         <div class="rating fs-5">
-          <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i> <i class="fa fa-star"></i><i
-            class="fa-regular fa-star"></i>
+          <i class="fa fa-star"></i><i class="fa fa-star"></i
+          ><i class="fa fa-star"></i> <i class="fa fa-star"></i
+          ><i class="fa-regular fa-star"></i>
         </div>
         <small class="text-primary ms-2">99 Ratings & 25 Reviews</small>
       </div>
@@ -158,18 +163,24 @@
       <div class="d-flex justify-content-around">
         <div class="text-center">
           <div class="policy-icon"><i class="fa fa-retweet"></i></div>
-          <small>10 Days <br />
-            Replacement</small>
+          <small
+            >10 Days <br />
+            Replacement</small
+          >
         </div>
         <div class="text-center">
           <div class="policy-icon"><i class="fa fa-truck"></i></div>
-          <small>Fast <br />
-            Delivery</small>
+          <small
+            >Fast <br />
+            Delivery</small
+          >
         </div>
         <div class="text-center">
           <div class="policy-icon"><i class="fa fa-check-circle"></i></div>
-          <small>3 Years <br />
-            Warranty</small>
+          <small
+            >3 Years <br />
+            Warranty</small
+          >
         </div>
       </div>
 

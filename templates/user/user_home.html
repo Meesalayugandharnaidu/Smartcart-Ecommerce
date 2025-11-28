@@ -1,5 +1,8 @@
-{% extends "base.html" %} {% block content %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+{% extends "index.html" %} {% block content %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+/>
 
 <style>
   /* ======= DASHBOARD CARD ======= */
@@ -96,7 +99,6 @@
 
 <div class="container mt-5 mb-5 dashboard-wrapper">
   <div class="dashboard-card">
-
     <div class="mx-auto user-icon">
       <i class="fa-solid fa-user"></i>
     </div>
@@ -104,7 +106,7 @@
     <h5>Welcome, {{ user_name }} 👋</h5>
     <span>SmartCart User Panel</span>
 
-    <hr>
+    <hr />
 
     <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
       <a href="/user/products" class="btn btn-primary dash-btn">
@@ -124,7 +126,6 @@
         <i class="fa-solid fa-arrow-right"></i> Logout
       </a>
     </div>
-
   </div>
 </div>
 
