@@ -1,84 +1,91 @@
 {% extends "index.html" %} {% block content %}
 
 <style>
-  .signup-container {
-    min-height: 100vh;
+  body {
+    background: #f2f6ff;
+    font-family: "Poppins", sans-serif;
+  }
+
+  .signup-wrapper {
+    min-height: 80vh;
     display: flex;
-    justify-content: center;
     align-items: center;
-    background: #ffffff;
+    justify-content: center;
   }
 
   .signup-card {
+    background: #fff;
     width: 100%;
     max-width: 420px;
-    background: #fff;
-    padding: 30px 30px;
-    border-radius: 12px;
-    box-shadow: 0px 6px 12px rgba(6, 6, 105, 0.25);
-    animation: fadeIn 0.4s ease-in;
+    border-radius: 18px;
+    padding: 35px 30px;
+    box-shadow: 0 8px 18px rgba(0, 56, 255, 0.15);
+    border-bottom: 4px solid #0027cb;
+    transition: 0.3s;
+  }
+
+  .signup-card:hover {
+    box-shadow: 0 12px 25px rgba(0, 56, 255, 0.28);
+    transform: translateY(-4px);
   }
 
   .signup-card h3 {
-    color: rgba(6, 6, 105, 0.897);
-    font-weight: 600;
+    font-weight: 700;
+    color: #0027cb;
   }
 
-  .input-custom {
-    border: 2px solid rgba(6, 6, 105, 0.897);
-    height: 42px;
-    border-radius: 10px;
-    padding-left: 10px;
-    color: rgba(6, 6, 105, 0.7);
+  .signup-input {
+    height: 46px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 2px solid #004effa4;
+    outline: none;
+    font-size: 15px;
   }
 
-  .input-custom::placeholder {
-    color: rgba(6, 6, 105, 0.6);
+  .signup-input:focus {
+    border-color: #001dbb;
+    box-shadow: 0 0 4px rgba(0, 41, 200, 0.3);
   }
 
-  .btn-custom {
-    background-color: rgba(6, 6, 105, 0.897);
+  .btn-signup {
+    background: #0027cb;
+    border-radius: 12px;
+    padding: 12px 0;
+    font-size: 17px;
     color: #fff;
-    height: 42px;
+    font-weight: 600;
+    border: none;
+    transition: 0.3s;
+  }
+
+  .btn-signup:hover {
+    background: #001799;
+  }
+
+  .btn-login {
+    margin-top: 10px;
+    display: block;
+    text-align: center;
+    padding: 10px 0;
     border-radius: 10px;
-    font-weight: 500;
-    box-shadow: 4px 4px 10px rgba(6, 6, 105, 0.25);
-  }
-
-  .btn-custom:hover {
-    background-color: rgb(6, 6, 105);
-    color: #ffffff;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    font-weight: 600;
+    color: #340086ff;
+    transition: 0.3s;
   }
 </style>
 
-<div class="signup-container">
+<div class="signup-wrapper">
   <div class="signup-card">
     <h3 class="text-center mb-4">Admin Registration</h3>
-
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %} {% for
-    category, message in messages %}
-    <div class="alert alert-danger text-center py-2 small">{{ message }}</div>
-    {% endfor %} {% endwith %}
 
     <form method="POST" action="/admin-signup">
       <div class="mb-4">
         <input
           type="text"
           name="name"
-          class="form-control input-custom"
-          placeholder="Name"
+          class="form-control signup-input"
+          placeholder="Enter Name"
           required
         />
       </div>
@@ -87,14 +94,18 @@
         <input
           type="email"
           name="email"
-          class="form-control input-custom"
-          placeholder="Email"
+          class="form-control signup-input"
+          placeholder="Enter Email"
           required
         />
       </div>
 
-      <button class="btn btn-custom w-100" type="submit">Send OTP</button>
+      <button class="btn-signup w-100" type="submit">Send OTP</button>
     </form>
+
+    <a href="/admin-login" class="btn-login" style="color: #0027cb"
+      >← Back to Login</a
+    >
   </div>
 </div>
 

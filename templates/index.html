@@ -17,9 +17,15 @@
     />
 
     <style>
-      /* ==================== NAVBAR ==================== */
+      body {
+        background: #f2f6ff;
+        font-family: sans-serif;
+        /* prevents content hiding under navbar */
+      }
+
+      /* ============ NAVBAR FIXED TOP ============ */
       .navbar-custom {
-        background: linear-gradient(45deg, #0048ff, #1e90ff);
+        background: linear-gradient(45deg, #023fdbda, #0027cb);
         box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
       }
 
@@ -27,12 +33,7 @@
         color: #fff !important;
         font-weight: 700;
         font-size: 22px;
-        letter-spacing: 1px;
         transition: 0.3s;
-      }
-
-      .navbar-custom .navbar-brand:hover {
-        text-shadow: 0 0 8px #fff;
       }
 
       .navbar-custom .nav-link {
@@ -41,18 +42,16 @@
         transition: 0.3s;
       }
 
-      .navbar-custom .nav-link:hover {
-        color: #fffa !important;
-        transform: scale(1.05);
-      }
-
-      /* ==================== SEARCH BOX ==================== */
+      /* ============ SEARCH BOX ============ */
       .search-box {
         border-radius: 25px;
-        padding-left: 15px;
+        padding: 8px 16px;
         background: #fff;
         border: 2px solid transparent;
         transition: 0.3s;
+        width: 100%;
+        outline: none;
+        padding-right: 35px;
       }
 
       .search-box:focus {
@@ -62,44 +61,48 @@
 
       .search-icon {
         position: absolute;
-        right: 15px;
+        right: 18px;
         top: 50%;
         transform: translateY(-50%);
         color: #003bb9;
-        font-size: 17px;
       }
 
-      /* ==================== NAV ICON BUTTONS ==================== */
+      /* ============ NAV ICON BUTTONS ============ */
       .nav-icon {
         width: 45px;
         height: 45px;
         border-radius: 50%;
         text-align: center;
+        padding-top: 12px;
+        color: #0027cb !important;
+        box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.57),
+          0px -4px 8px rgba(255, 255, 255, 0.57);
+        margin-left: 35px;
+        transition: 0.25s ease-in-out;
         line-height: 35px;
-        color: #0048ff !important;
-        box-shadow: 3 3px 6px rgba(255, 255, 255, 0.4);
-        margin-left: 18px;
-        transition: 0.3s ease;
       }
 
       .nav-icon:hover {
-        background: #0c09bbff;
-        transform: translateY(-3px);
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        color: black;
+        transform: translateY(-2px);
+        background: #ddddddff;
       }
 
-      /* ==================== FOOTER ==================== */
+      /* ============ FOOTER NEW LOOK ============ */
       .footer {
-        background: #000;
+        background: linear-gradient(45deg, #023fdbda, #0027cb);
         color: #fff;
-        padding: 28px 0;
-        margin-top: 100px;
+        padding: 45px 0;
+        margin-top: 100%;
+      }
+
+      .footer p {
+        font-size: 16px;
+        margin-bottom: 10px;
       }
 
       .footer a {
-        color: #cfcfcf;
-        text-decoration: none;
+        color: #cfd8ff;
+        margin: 0 8px;
         transition: 0.3s;
       }
 
@@ -107,23 +110,8 @@
         color: #fff;
         text-decoration: underline;
       }
-
-      /* ==================== FLASH ==================== */
-      .alert {
-        border-radius: 10px;
-        font-weight: 500;
-      }
-
-      /* ==================== RESPONSIVE FIXES ==================== */
-      @media (max-width: 992px) {
-        .nav-icon {
-          margin-left: 0;
-          margin-top: 10px;
-        }
-
-        .navbar-custom .nav-link {
-          text-align: center;
-        }
+      title {
+        color: blue;
       }
     </style>
   </head>
@@ -153,7 +141,7 @@
             <input
               type="text"
               name="search"
-              class="form-control search-box"
+              class="search-box"
               placeholder="Search products..."
               value="{{ request.args.get('search', '') }}"
             />

@@ -1,0 +1,54 @@
+{% extends "index.html" %} {% block content %}
+
+<style>
+  .fail-wrapper {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    background: #f8f9fb;
+  }
+
+  .fail-card {
+    background: #ffffff;
+    padding: 35px;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .fail-icon {
+    font-size: 50px;
+    color: #dc3545;
+    margin-bottom: 15px;
+  }
+
+  .btn-back {
+    background: #dc3545;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-top: 20px;
+  }
+
+  .btn-back:hover {
+    background: #b32b37;
+  }
+</style>
+
+<div class="fail-wrapper">
+  <div class="fail-card">
+    <div class="fail-icon">✖</div>
+    <h3 class="text-danger">Payment Failed</h3>
+
+    <p class="mt-3 text-muted">{{ reason }}</p>
+
+    <a href="/user/pay" class="btn btn-back">Try Again</a>
+  </div>
+</div>
+
+{% endblock %}

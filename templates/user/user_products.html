@@ -35,6 +35,7 @@
         .toolbar {
             width: 90%;
             margin: 20px auto;
+            background-color:#fff;
         }
 
         .toolbar form {
@@ -67,7 +68,7 @@
             padding: 15px;
             text-align: center;
             background-color: #fff;
-            border: none;
+            border:1px solid #0027cb;
             box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.4);
             transition: 0.3s;
         }
@@ -82,6 +83,7 @@
             height: 120px;
             object-fit: contain;
             margin-bottom: 12px;
+
         }
 
         .product-card h3 {
@@ -104,7 +106,7 @@
 
         .btn-view {
             margin-top: 8px;
-            background-color: #2874f0;
+            background-color:#0027cb;
             padding: 6px 14px;
             border-radius: 6px;
             color: #fff;
@@ -115,6 +117,14 @@
         .btn-view:hover {
             background-color: #0b5ed7;
         }
+        .fa-star{
+            color:#0027cb;
+
+        }
+        .fil{
+        
+            color:#0027cb;
+        }
     </style>
 </head>
 
@@ -122,19 +132,11 @@
 
     <div class="container mt-3">
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-        <div class="alert alert-success"> {{ message }} </div>
-        {% endfor %}
-        {% endwith %}
-
+    
         <!-- Toolbar -->
         <div class="toolbar">
 
             <!-- Search -->
-
-
             <!-- Category Filter -->
             <form method="GET" action="/user/products" class="d-flex gap-2">
                 <select name="category" class="fil">
@@ -161,11 +163,12 @@
                 <h3>{{ product.name }}</h3>
                 <p>{{ product.category }}</p>
                 <p class="price">₹{{ product.price }}</p>
-                <p class="text-primary"><i class="fa-solid fa-star"></i>
+                <p class="icons">
                     <i class="fa-solid fa-star"></i>
                     <i class="fa-solid fa-star"></i>
                     <i class="fa-solid fa-star"></i>
                     <i class="fa-solid fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
                 </p><br>
 
 

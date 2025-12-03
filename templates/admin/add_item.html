@@ -62,12 +62,6 @@
   <div class="add-product-card">
     <h2 class="text-center mb-4">Add New Product</h2>
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %} {% for
-    category, message in messages %}
-    <div class="alert alert-success text-center py-2 small">{{ message }}</div>
-    {% endfor %} {% endwith %}
-
     <form method="POST" action="/admin/add-item" enctype="multipart/form-data">
       <div class="mb-3">
         <label class="form-label">Product Name</label>
@@ -112,6 +106,10 @@
           placeholder="Enter price"
           required
         />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Quantity</label>
+        <input type="text" name="quantity" class="form-control" required />
       </div>
 
       <div class="mb-3">

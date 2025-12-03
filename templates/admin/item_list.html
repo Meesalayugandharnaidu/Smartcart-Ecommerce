@@ -105,7 +105,7 @@
 
     <!-- Buttons Row -->
     <div class="d-flex justify-content-between flex-wrap mb-3">
-      <a href="/admin-dashboard" class="btn btn-success mt-2">
+      <a href="/admin-dashboard" class="btn  btn-custom  mt-2">
         <i class="fa-solid fa-arrow-left"></i> Back To Dashboard
       </a>
 
@@ -124,6 +124,7 @@
             <th>Name</th>
             <th>Category</th>
             <th>Price</th>
+              <th>Buy</th>
             <th>View</th>
             <th>Delete</th>
           </tr>
@@ -141,6 +142,7 @@
             <td>{{ product.name }}</td>
             <td>{{ product.category }}</td>
             <td><span class="text-success fw-bold">₹{{ product.price }}</span></td>
+             <td><span class="text-success fw-bold">{{ product.total_sold }}</span></td>
 
             <td>
               <a href="/admin/view-item/{{ product.product_id }}" class="btn btn-primary btn-sm">

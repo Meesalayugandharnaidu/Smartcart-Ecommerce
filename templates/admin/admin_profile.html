@@ -1,4 +1,4 @@
-{% extends "index.html" %} {% block content %}
+\{% extends "index.html" %} {% block content %}
 
 <style>
   body {
@@ -7,24 +7,25 @@
   }
 
   .profile-wrapper {
-    min-height: 80vh;
+    min-height: 60vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px;
   }
 
   .profile-card {
-    background: #fff;
+    background: #ffffff;
     width: 100%;
-    max-width: 620px;
+    max-width: 450px;
     border-radius: 18px;
-    padding: 30px 25px;
-    box-shadow: 0 8px 18px rgba(0, 56, 255, 0.1);
+    padding: 35px 30px;
+    box-shadow: 0px 10px 25px rgba(0, 56, 255, 0.12);
     border-bottom: 4px solid #0027cb;
   }
 
   .profile-card:hover {
-    box-shadow: 0 12px 28px rgba(0, 56, 255, 0.2);
+    box-shadow: 0px 14px 35px rgba(0, 56, 255, 0.25);
   }
 
   .profile-card h2 {
@@ -33,26 +34,38 @@
   }
 
   .profile-img {
-    width: 135px;
-    height: 135px;
-    border-radius: 50%;
+    width: 100px;
+    height: 100px;
     object-fit: cover;
-    border: 4px solid #001e7b;
-    box-shadow: 0 4px 12px rgba(0, 0, 80, 0.18);
+    border-radius: 50%;
+    border: 4px solid #0030ad;
+    box-shadow: 0px 5px 14px rgba(0, 0, 0, 0.18);
   }
 
   .btn-profile {
     background: #0027cb;
-    color: white;
-    font-weight: 600;
-    padding: 10px 0;
-    border-radius: 12px;
     border: none;
-    transition: 0.3s;
+    color: #fff;
+    font-weight: 600;
+    padding: 12px;
+    border-radius: 12px;
+    width: 100%;
+    transition: 0.25s;
   }
 
   .btn-profile:hover {
-    background: #001799;
+    background: #00188b;
+  }
+
+  .form-control {
+    border-radius: 12px;
+    padding: 12px;
+    border: 2px solid #0033ff30;
+  }
+
+  .form-control:focus {
+    border-color: #0027cb;
+    box-shadow: 0 0 4px rgba(0, 41, 200, 0.3);
   }
 
   .back-link {
@@ -65,27 +78,32 @@
     text-decoration: underline;
   }
 
-  .form-control {
+  .detail-box {
+    background: #eef2ff;
+    padding: 12px 16px;
     border-radius: 12px;
-    padding: 12px;
-    border: 2px solid #0033ff40;
+    margin-bottom: 10px;
+    border-left: 4px solid #0027cb;
   }
 
-  .form-control:focus {
-    border-color: #0027cb;
-    box-shadow: 0 0 4px rgba(0, 41, 200, 0.3);
+  .detail-label {
+    font-weight: 600;
+    color: #0027cb;
+    font-size: 15px;
+  }
+
+  .detail-text {
+    font-size: 15px;
+    color: #333;
+  }
+  h4 {
+    color: #0027cb;
   }
 </style>
 
 <div class="profile-wrapper">
   <div class="profile-card">
-    <h2 class="text-center mb-4">Admin Profile</h2>
-
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %} {% for
-    category, message in messages %}
-    <div class="alert alert-success text-center py-2 small">{{ message }}</div>
-    {% endfor %} {% endwith %}
+    <h4 class="text-center mb-4">Admin Profile</h4>
 
     <div class="text-center mb-3">
       {% if admin.profile_image %}
@@ -94,14 +112,45 @@
         class="profile-img"
       />
       {% else %}
-      <img src="https://via.placeholder.com/135" class="profile-img" />
-      <p class="small text-muted">No Profile Image Uploaded</p>
+      <img src="https://via.placeholder.com/140" class="profile-img" />
+      <p class="small text-muted">No Profile Image</p>
+      {% endif %}
+    </div>
+    <br />
+    <!-- Display all admin details cleanly -->
+    <div class="mb-4">
+      <div class="detail-box">
+        <span class="detail-label">Admin ID:</span>
+        <div class="detail-text">{{ admin.admin_id }}</div>
+      </div>
+
+      <div class="detail-box">
+        <span class="detail-label">Name:</span>
+        <div class="detail-text">{{ admin.Name }}</div>
+      </div>
+
+      <div class="detail-box">
+        <span class="detail-label">Email:</span>
+        <div class="detail-text">{{ admin.Email }}</div>
+      </div>
+
+      {% if admin.created_at %}
+      <div class="detail-box">
+        <span class="detail-label">Created On:</span>
+        <div class="detail-text">{{ admin.created_at }}</div>
+      </div>
       {% endif %}
     </div>
 
+    <br />
+    <br />
+    <br />
+    <!-- Update Profile Form -->
     <form method="POST" action="/admin/profile" enctype="multipart/form-data">
+      <h4 class="mb-3" style="color: #0027cb">Update Details</h4>
+
       <div class="mb-3">
-        <label class="form-label">Name</label>
+        <label class="form-label">Update Name</label>
         <input
           type="text"
           name="name"
@@ -112,7 +161,7 @@
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Email</label>
+        <label class="form-label">Update Email</label>
         <input
           type="email"
           name="email"
@@ -123,7 +172,7 @@
       </div>
 
       <div class="mb-3">
-        <label class="form-label">New Password (optional)</label>
+        <label class="form-label">Change Password (optional)</label>
         <input
           type="password"
           name="password"
@@ -133,7 +182,7 @@
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Upload New Profile Image (optional)</label>
+        <label class="form-label">New Profile Image (optional)</label>
         <input
           type="file"
           name="profile_image"
@@ -142,10 +191,10 @@
         />
       </div>
 
-      <button type="submit" class="btn-profile w-100">Update Profile</button>
+      <button type="submit" class="btn-profile">Update Profile</button>
     </form>
 
-    <div class="text-center mt-3">
+    <div class="text-center mt-4">
       <a href="/admin-dashboard" class="back-link">← Back to Dashboard</a>
     </div>
   </div>

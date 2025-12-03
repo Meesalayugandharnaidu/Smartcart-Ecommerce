@@ -52,14 +52,6 @@ content %}
         <i class="fa-solid fa-shield-halved"></i> Verify OTP
       </h3>
 
-      <!-- Flash Messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %} {% if
-      messages %} {% for category, message in messages %}
-      <div class="alert alert-danger text-center flash-msg py-2">
-        {{ message }}
-      </div>
-      {% endfor %} {% endif %} {% endwith %}
-
       <form method="POST" action="/verify-otp">
         <label class="form-label">Enter OTP</label>
         <input

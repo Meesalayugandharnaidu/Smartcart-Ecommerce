@@ -1,140 +1,252 @@
-{% extends "index.html" %} {% block content %}
+{% extends "index.html" %}
+{% block content %}
 
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-/>
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
 
 <style>
-  /* CART CUSTOM STYLES */
-  .cart-title i {
-    color: #0d6efd;
-  }
-
-  .cart-table img {
-    border-radius: 10px;
-    transition: transform 0.2s;
-  }
-
-  .cart-table img:hover {
-    transform: scale(1.1);
-  }
-
-  .cart-table th {
-    font-weight: bold;
-    font-size: 15px;
-  }
-
-  .quantity-btn {
-    width: 28px;
-    height: 28px;
-    padding: 0;
-  }
-
-  /* TOTAL AND BUTTONS */
-  .btn-pay {
-    font-weight: bold;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
-  }
-
-  .btn-pay:hover {
-    background: #198754;
-    color: #fff;
-  }
-
-  /* MOBILE RESPONSIVE */
-  @media (max-width: 768px) {
-    .cart-table {
-      font-size: 13px;
+    /* CART CARD */
+    .cart-card {
+        background: #fff;
+        border-radius: 18px;
+        padding: 20px;
+        border: 2px solid #e7e7e7;
+        box-shadow: 0px 3px 10px rgba(0,0,0,0.08);
+        transition: 0.25s ease;
+        margin-bottom: 18px;
+        opacity: 0;
+        animation: fadeIn 0.4s forwards;
+        border-left:5px solid #0c37e6ff;
     }
-    .cart-table img {
-      width: 60px;
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-    .quantity-btn {
-      width: 25px;
-      height: 25px;
-      font-size: 12px;
+
+    .cart-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0px 8px 20px rgba(0,0,0,0.15);
     }
-  }
+
+    /* IMAGE */
+    .cart-img {
+        width: 110px;
+        height: 110px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        transition: 0.2s;
+    }
+
+    .cart-img:hover {
+        transform: scale(1.08);
+    }
+
+    /* QUANTITY BUTTONS */
+    .qty-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.25s ease;
+    }
+
+    .qty-btn:hover {
+        transform: scale(1.15);
+    }
+
+    .qty-count {
+        width: 42px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    /* REMOVE BUTTON */
+    .remove-btn {
+      background: #dc3545;
+          color: #fff;
+        border-radius: 10px;
+        padding: 7px 7px;
+        transition: 0.25s ease;
+    }
+
+    .remove-btn:hover {
+        background: #dc3545;
+        color: #fff;
+        transform: scale(1.06);
+    }
+
+    /* GRAND TOTAL ANIMATION */
+    #grand-total {
+        transition: 0.25s ease;
+    }
+
+    .pulse {
+        animation: pulseAnim 0.4s;
+    }
+
+    @keyframes pulseAnim {
+        0%   { transform: scale(1); }
+        50%  { transform: scale(1.15); }
+        100% { transform: scale(1); }
+    }
+
+    /* PAY BUTTON */
+    #pay-btn {
+        transition: 0.25s ease;
+    }
+
+    #pay-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.25);
+    }
 </style>
 
-<h5 class="text-success mb-3 cart-title">Shopping Cart</h5>
+<h3 class="text-primary fw-bold mb-4">
+    <i class="fa-solid fa-cart-shopping"></i> Shopping Cart
+</h3>
 
 {% if not cart %}
 <div class="alert alert-warning text-center p-4 rounded shadow-sm">
-  <h5>Your cart is empty 😕</h5>
-  <a class="btn btn-success mt-3 px-4" href="/user/products">Shop Now</a>
+    <h5>Your cart is empty 😕</h5>
+    <a class="btn btn-success mt-3 px-4" href="/user/products">Shop Now</a>
 </div>
 
 {% else %}
-<div class="table-responsive">
-  <table
-    class="table table-bordered table-hover align-middle text-center cart-table shadow-sm"
-  >
-    <thead class="table-dark">
-      <tr>
-        <th>Image</th>
-        <th>Name</th>
-        <th>Price (₹)</th>
-        <th>Quantity</th>
-        <th>Total (₹)</th>
-        <th>Action</th>
-      </tr>
-    </thead>
 
-    <tbody>
-      {% for pid, item in cart.items() %}
-      <tr>
-        <td>
-          <img
-            src="/static/uploads/product_images/{{ item.image }}"
-            width="80"
-          />
-        </td>
-        <td class="fw-bold">{{ item.name }}</td>
-        <td>₹ {{ item.price }}</td>
+<div id="cart-container">
 
-        <td>
-          <a
-            class="btn btn-sm btn-danger quantity-btn"
-            href="/user/cart/decrease/{{ pid }}"
-            >-</a
-          >
-          <span class="mx-2 fw-bold">{{ item.quantity }}</span>
-          <a
-            class="btn btn-sm btn-success quantity-btn"
-            href="/user/cart/increase/{{ pid }}"
-            >+</a
-          >
-        </td>
+    {% for item in cart %}
+    <div class="cart-card" id="cart-item-{{ item.cart_id }}">
 
-        <td class="fw-bold">₹ {{ item.price * item.quantity }}</td>
+        <div class="row align-items-center">
 
-        <td>
-          <a
-            class="btn btn-sm btn-outline-danger"
-            href="/user/cart/remove/{{ pid }}"
-          >
-            <i class="fa-solid fa-trash"></i>
-          </a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+            <!-- IMAGE -->
+            <div class="col-md-2 col-4 text-center">
+                <img src="/static/uploads/product_images/{{ item.image }}" class="cart-img">
+            </div>
+
+            <!-- NAME + PRICE -->
+            <div class="col-md-4 col-8">
+                <h5 class="fw-bold mb-1">{{ item.name }}</h5>
+                <p class="text-muted mb-1">Price: ₹{{ item.price }}</p>
+
+                {% if item.stock > 0 %}
+                    <span class="badge bg-success">In Stock ({{ item.stock }})</span>
+                {% else %}
+                    <span class="badge bg-danger">Out of Stock</span>
+                {% endif %}
+            </div>
+
+            <!-- QUANTITY -->
+            <div class="col-md-3 text-center mt-3 mt-md-0">
+                <div class="d-flex align-items-center justify-content-center">
+                    <button class="btn btn-outline-danger qty-btn"
+                            onclick="updateQty({{ item.cart_id }}, 'decrease')">-</button>
+
+                    <span class="qty-count" id="qty-{{ item.cart_id }}">
+                        {{ item.quantity }}
+                    </span>
+
+                    <button class="btn btn-outline-success qty-btn"
+                            onclick="updateQty({{ item.cart_id }}, 'increase')"
+                            {% if item.stock == 0 %} disabled {% endif %}>+</button>
+                </div>
+            </div>
+
+            <!-- TOTAL + REMOVE -->
+            <div class="col-md-3 text-end mt-3 mt-md-0">
+
+                <h4 class="fw-bold text-primary">
+                    ₹<span id="item-total-{{ item.cart_id }}">{{ item.price * item.quantity }}</span>
+                </h4>
+
+                <button class="btn btn-bg-danger remove-btn mt-2"
+                        onclick="removeItem({{ item.cart_id }})">
+                    <i class="fa-solid fa-trash"></i> Remove
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+    {% endfor %}
 </div>
 
-<h5 class="text-end text-success fw-bold mt-3">
-  Grand Total: <span class="text-dark">₹ {{ grand_total }}</span>
-</h5>
-
-<div class="d-flex justify-content-between mt-4 mb-3">
-  <a href="/user/products" class="btn btn-success">
-    <i class="fa-solid fa-arrow-left"></i> Continue Shopping
-  </a>
-  <a href="/user/pay" class="btn btn-primary btn-pay">
-    <i class="fa-solid fa-bolt"></i> Pay ₹ {{ grand_total }}
-  </a>
+<!-- GRAND TOTAL -->
+<div class="text-end mt-4">
+    <h6 class="fw-bold text-success">
+        Grand Total:<span class="text-dark"> ₹<span id="grand-total">{{ grand_total }}</span></span>
+    </h6>
 </div>
 
-{% endif %} {% endblock %}
+<!-- BOTTOM BUTTONS -->
+<div class="d-flex justify-content-between mb-4">
+    <a href="/user/products" class="btn btn-success">
+        <i class="fa-solid fa-arrow-left"></i> Continue Shopping
+    </a>
+
+    <a href="/user/pay" class="btn btn-primary px-4 fw-bold" id="pay-btn">
+        Pay ₹  <span id="pay-total">{{ grand_total }}</span>
+    </a>
+</div>
+
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+function animateTotal() {
+    $("#grand-total").addClass("pulse");
+    $("#pay-total").addClass("pulse");
+
+    setTimeout(() => {
+        $("#grand-total").removeClass("pulse");
+        $("#pay-total").removeClass("pulse");
+    }, 400);
+}
+
+// AJAX UPDATE QUANTITY
+function updateQty(cart_id, action) {
+    $.ajax({
+        url: `/user/cart/${action}/${cart_id}`,
+        method: "GET",
+        success: function () {
+
+            $("#cart-container").load(location.href + " #cart-container>*");
+
+            $("#grand-total").load(location.href + " #grand-total>*", () => animateTotal());
+            $("#pay-total").load(location.href + " #pay-total>*");
+        },
+        error: function () {
+            alert("Error updating quantity");
+        }
+    });
+}
+
+// AJAX REMOVE ITEM
+function removeItem(cart_id) {
+    $.ajax({
+        url: `/user/cart/remove/${cart_id}`,
+        method: "GET",
+        success: function () {
+            $(`#cart-item-${cart_id}`).fadeOut(250, function () {
+                $(this).remove();
+
+                $("#grand-total").load(location.href + " #grand-total>*", () => animateTotal());
+                $("#pay-total").load(location.href + " #pay-total>*");
+            });
+        },
+        error: function () {
+            alert("Error removing item");
+        }
+    });
+}
+</script>
+
+{% endblock %}

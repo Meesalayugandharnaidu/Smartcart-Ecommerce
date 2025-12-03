@@ -1,0 +1,77 @@
+{% extends "index.html" %} {% block content %}
+
+<style>
+  .otp-wrapper {
+    min-height: 85vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .otp-card {
+    width: 100%;
+    max-width: 430px;
+    border-radius: 20px;
+    background: #ffffff;
+    padding: 30px 35px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    transition: 0.2s ease-in-out;
+  }
+
+  .otp-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.33);
+  }
+
+  .otp-title {
+    font-weight: 700;
+    color: #2911fc;
+  }
+
+  .form-control {
+    height: 45px;
+    border-radius: 10px;
+    border: 1px solid #0027cb;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 2px;
+  }
+</style>
+
+<div class="otp-wrapper">
+  <div class="otp-card">
+    <h3 class="text-center mb-4 otp-title">Verify OTP</h3>
+
+    <form method="POST" action="/user-verify-otp">
+      <div class="mb-3">
+        <input
+          type="text"
+          name="otp"
+          class="form-control"
+          placeholder="Enter OTP"
+          required
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary w-100 fw-bold"
+        style="background: #2911fc; border-radius: 10px"
+      >
+        Verify OTP
+      </button>
+    </form>
+
+    <a
+      href="/user-forgot-password"
+      class="d-block text-center mt-2"
+      style="color: #2911fc; font-weight: 600"
+    >
+      Resend OTP?
+    </a>
+  </div>
+</div>
+
+{% endblock %}

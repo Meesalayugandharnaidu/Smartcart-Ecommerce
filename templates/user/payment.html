@@ -67,6 +67,7 @@
     }
   }
 </style>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <div class="payment-card text-center">
   <img
@@ -85,11 +86,11 @@
 </div>
 
 <!-- Razorpay Script -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <script>
   var options = {
     key: "{{ key_id }}",
-    amount: "{{ amount * 100 }}",
+    amount: {{ grand_total * 100 }},  // numeric, no quotes
     currency: "INR",
     name: "SmartCart",
     description: "Order Payment",
@@ -120,8 +121,8 @@
 
   var rzp = new Razorpay(options);
   document.getElementById("rzp-button").onclick = function (e) {
-    rzp.open();
     e.preventDefault();
+    rzp.open();
   };
 </script>
 

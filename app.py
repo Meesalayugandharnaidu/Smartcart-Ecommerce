@@ -196,6 +196,100 @@ def admin_login():
 
     flash("Login Successful!", "success")
     return redirect('/admin-dashboard')
+
+ #forget passwor-----
+@app.route('/admin-forgot-password', methods=['GET', 'POST'])
+def admin_forgot_password():
+
+    if request.method == 'GET':
+        return render_template("admin/admin_forgot_password.html")
+
+    email = request.form['Email']
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM admin WHERE Email=%s", (email,))
+    admin = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if admin is None:
+        flash("Email not found!", "danger")
+        return redirect('/admin-forgot-password')
+
+    # Generate OTP
+    import random
+    otp = random.randint(100000, 999999)
+
+    # Store OTP & email in session
+    session['reset_email'] = email
+    session['otp'] = str(otp)
+
+    # In real app send email, but here we flash it
+    flash(f"Your OTP is: {otp}", "success")
+
+    return redirect('/admin-verify-otp')
+
+#verify otp
+@app.route('/admin-verify-otp', methods=['GET', 'POST'])
+def admin_verify_otp():
+
+    if 'reset_email' not in session:
+        flash("Unauthorized access!", "danger")
+        return redirect('/admin-login')
+
+    if request.method == 'GET':
+        return render_template("admin/admin_verify_otp.html")
+
+    entered_otp = request.form['OTP']
+
+    if entered_otp == session.get('otp'):
+        session.pop('otp', None)   # OTP valid → remove OTP
+        return redirect('/admin-reset-password')
+    else:
+        flash("Invalid OTP! Try again.", "danger")
+        return redirect('/admin-verify-otp')
+
+
+ #create new passowrd
+
+@app.route('/admin-reset-password', methods=['GET', 'POST'])
+def admin_reset_password():
+
+    if 'reset_email' not in session:
+        flash("Unauthorized access!", "danger")
+        return redirect('/admin-login')
+
+    if request.method == 'GET':
+        return render_template("admin/admin_reset_password.html")
+
+    new_pass = request.form['NewPassword']
+    confirm_pass = request.form['ConfirmPassword']
+
+    if new_pass != confirm_pass:
+        flash("Passwords do not match!", "danger")
+        return redirect('/admin-reset-password')
+
+    hashed = bcrypt.hashpw(new_pass.encode('utf-8'), bcrypt.gensalt())
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE admin SET Password=%s WHERE Email=%s",
+                   (hashed, session['reset_email']))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    session.pop('reset_email', None)
+
+    flash("Updated Successfull! Please login.", "success")
+    return redirect('/admin-login')
+
+
 # ROUTE 6: ADMIN DASHBOARD (PROTECTED ROUTE)
 # =========================================
 @app.route('/admin-dashboard')
@@ -212,8 +306,6 @@ def admin_dashboard():
 
 
 
-
-
 # ROUTE 6: ADMIN LOGOUT
 # ======================
 @app.route('/admin-logout')
@@ -224,7 +316,7 @@ def admin_logout():
     session.pop('admin_name', None)
     session.pop('admin_email', None)
 
-    flash("Logged out successfully.", "success")
+    flash("Logout Successfully.", "success")
     return redirect('/admin-login')
 
 
@@ -247,73 +339,57 @@ def add_item_page():
 
     return render_template("admin/add_item.html")
 
-
-
-
-
-
-
-
-
-
-
-
 # =================================================================
 # ROUTE 2: ADD PRODUCT INTO DATABASE
 # =================================================================
-@app.route('/admin/add-item', methods=['POST'])
-def add_item():
 
-    # Check admin session
+@app.route('/admin/add-item', methods=['GET','POST'])
+def add_item():
     if 'admin_id' not in session:
         flash("Please login first!", "danger")
         return redirect('/admin-login')
 
-    # 1️⃣ Get form data
-    name = request.form['name']
-    description = request.form['description']
-    category = request.form['category']
-    price = request.form['price']
-    image_file = request.files['image']
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        category = request.form['category']
+        price = request.form['price']
+        quantity = request.form['quantity']
+        image_file = request.files['image']
 
-    # 2️⃣ Validate image upload
-    if image_file.filename == "":
-        flash("Please upload a product image!", "danger")
+        if image_file.filename == "":
+            flash("Please upload a product image!", "danger")
+            return redirect('/admin/add-item')
+
+        filename = secure_filename(image_file.filename)
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        image_file.save(image_path)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO products (name, description, category, price,quantity , image) VALUES (%s, %s, %s, %s,%s, %s)",
+            (name, description, category, price, quantity,filename)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        flash("Product Added Successfull!", "success")
         return redirect('/admin/add-item')
 
-    # 3️⃣ Secure the file name
-    filename = secure_filename(image_file.filename)
-
-    # 4️⃣ Create full path
-    image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-    # 5️⃣ Save image into folder
-    image_file.save(image_path)
-
-    # 6️⃣ Insert product into database
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "INSERT INTO products (name, description, category, price, image) VALUES (%s, %s, %s, %s, %s)",
-        (name, description, category, price, filename)
-    )
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    flash("Product added successfully!", "success")
-    return redirect('/admin/add-item')
-
-
+    # GET request → render form
+    return render_template('admin/add_item.html')
 
 
 # ROUTE 9: DISPLAY ALL PRODUCTS (Admin)
-# =================================================================
+# ================================================================
+
+
+#add item 
+
 @app.route('/admin/item-list')
 def item_list():
-
     if 'admin_id' not in session:
         flash("Please login!", "danger")
         return redirect('/admin-login')
@@ -324,21 +400,34 @@ def item_list():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 1️⃣ Fetch category list for dropdown
+    # Fetch categories for dropdown
     cursor.execute("SELECT DISTINCT category FROM products")
     categories = cursor.fetchall()
 
-    # 2️⃣ Build dynamic query based on filters
-    query = "SELECT * FROM products WHERE 1=1"
+    # Fetch products with total sold
+    query = """
+        SELECT 
+            p.product_id,
+            p.name,
+            p.category,
+            p.price,
+            p.stock AS remaining_stock,
+            p.image,
+            COALESCE(SUM(oi.quantity), 0) AS total_sold
+        FROM products p
+        LEFT JOIN order_items oi ON p.product_id = oi.product_id
+        WHERE 1=1
+    """
     params = []
 
     if search:
-        query += " AND name LIKE %s"
-        params.append("%" + search + "%")
-
+        query += " AND p.name LIKE %s"
+        params.append(f"%{search}%")
     if category_filter:
-        query += " AND category = %s"
+        query += " AND p.category = %s"
         params.append(category_filter)
+
+    query += " GROUP BY p.product_id ORDER BY p.product_id DESC"
 
     cursor.execute(query, params)
     products = cursor.fetchall()
@@ -346,12 +435,7 @@ def item_list():
     cursor.close()
     conn.close()
 
-    return render_template(
-        "admin/item_list.html",
-        products=products,
-        categories=categories
-    )
-
+    return render_template('admin/item_list.html', products=products, categories=categories)
 
 # ROUTE 10: VIEW SINGLE PRODUCT DETAILS
 # =================================================================
@@ -494,33 +578,34 @@ def delete_item(item_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 1️⃣ Fetch product to get image name
-    cursor.execute("SELECT image FROM products WHERE product_id=%s", (item_id,))
+    # Check product exists
+    cursor.execute("SELECT * FROM products WHERE product_id=%s", (item_id,))
     product = cursor.fetchone()
 
     if not product:
         flash("Product not found!", "danger")
+        cursor.close()
+        conn.close()
         return redirect('/admin/item-list')
 
-    image_name = product['image']
+    try:
+        # Delete from order_items first
+        cursor.execute("DELETE FROM order_items WHERE product_id=%s", (item_id,))
 
-    # Delete image from folder
-    image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_name)
-    if os.path.exists(image_path):
-        os.remove(image_path)
+        # Then delete from products
+        cursor.execute("DELETE FROM products WHERE product_id=%s", (item_id,))
+        conn.commit()
+        flash("Product deleted permanently!", "success")
 
-    # 2️⃣ Delete product from DB
-    cursor.execute("DELETE FROM products WHERE product_id=%s", (item_id,))
-    conn.commit()
+    except Exception as e:
+        conn.rollback()
+        flash(f"Error deleting product: {str(e)}", "danger")
 
-    cursor.close()
-    conn.close()
+    finally:
+        cursor.close()
+        conn.close()
 
-    flash("Product deleted successfully!", "success")
     return redirect('/admin/item-list')
-
-
-
 
 #Admin profile
 ADMIN_UPLOAD_FOLDER = 'static/uploads/admin_profiles'
@@ -696,6 +781,104 @@ def user_login():
     flash("Login successful!", "success")
     return redirect('/user-dashboard')
 
+# ROUTE: USER forget password
+# =============================
+# USER FORGOT PASSWORD (Generate OTP)
+# =============================
+@app.route('/user-forgot-password', methods=['GET', 'POST'])
+def user_forgot_password():
+    if request.method == 'GET':
+        return render_template("user/user_forgot_password.html")
+
+    email = request.form['email']
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
+    user = cursor.fetchone()
+
+    if not user:
+        flash("Email not found!", "danger")
+        return redirect('/user-forgot-password')
+
+    # Generate OTP
+    otp = random.randint(100000, 999999)
+
+    # Store OTP and email in session
+    session['reset_email'] = email
+    session['reset_otp'] = otp
+
+
+    # Optional: Show OTP on screen for development
+    # flash(f"Your OTP is: {otp}", "info") 
+    flash(f"Your OTP is: {otp}", "success")
+    return redirect('/user-verify-otp')
+# =============================
+# VERIFY OTP
+# =============================
+@app.route('/user-verify-otp', methods=['GET', 'POST'])
+def user_verify_otp():
+    # Session expired / no email saved
+    if 'reset_email' not in session:
+        flash("Session expired. Try again.", "danger")
+        return redirect('/user-forgot-password')
+
+    # Show OTP page
+    if request.method == 'GET':
+        return render_template("user/user_verify_otp.html")
+
+    entered_otp = request.form['otp']
+
+    # Check OTP match
+    if str(session['reset_otp']) == entered_otp:
+        flash("OTP verified! Please set your new password.", "success")
+        return redirect('/user-reset-password')
+
+    flash("Invalid OTP! Try again.", "danger")
+    return redirect('/user-verify-otp')
+
+
+
+# =============================
+# RESET PASSWORD
+# =============================
+@app.route('/user-reset-password', methods=['GET', 'POST'])
+def user_reset_password():
+
+    # Prevent access without OTP verification
+    if 'reset_email' not in session:
+        flash("Session expired!", "danger")
+        return redirect('/user-forgot-password')
+
+    # Show Reset Password page
+    if request.method == 'GET':
+        return render_template("user/user_reset_password.html")
+
+    # Get new password
+    new_pass = request.form['password']
+    hashed_pass = bcrypt.hashpw(new_pass.encode('utf-8'), bcrypt.gensalt())
+
+    # Update DB
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE users SET password=%s WHERE email=%s",
+                   (hashed_pass.decode('utf-8'), session['reset_email']))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    # Clear session
+    session.pop('reset_email', None)
+    session.pop('reset_otp', None)
+
+    flash("Password reset successfully! Please login.", "success")
+    return redirect('/user-login')
+
+
+
 # ROUTE: USER DASHBOARD
 @app.route('/user-dashboard')
 def user_dashboard():
@@ -782,114 +965,251 @@ def user_product_details(product_id):
         return redirect('/user/products')
 
     return render_template("user/product_details.html", product=product)
-# ADD ITEM TO CART
-# =================================================================
-@app.route('/user/add-to-cart/<int:product_id>')
-def add_to_cart(product_id):
 
+
+
+
+
+# ADD ITEM TO CART
+@app.route('/user/add-to-cart/<int:product_id>', methods=['POST'])
+def add_to_cart(product_id):
     if 'user_id' not in session:
         flash("Please login first!", "danger")
         return redirect('/user-login')
 
-    # Create cart if doesn't exist
-    if 'cart' not in session:
-        session['cart'] = {}
-
-    cart = session['cart']
-
-    # Get product
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM products WHERE product_id=%s", (product_id,))
-    product = cursor.fetchone()
-    cursor.close()
-    conn.close()
+    try:
+        # Get product (current available stock)
+        cursor.execute("SELECT * FROM products WHERE product_id=%s", (product_id,))
+        product = cursor.fetchone()
+        if not product:
+            flash("Product not found!", "danger")
+            return redirect('/user/products')
 
-    if not product:
-        flash("Product not found.", "danger")
-        return redirect(request.referrer)
+        # Correct stock check: if no stock available
+        if product['stock'] <= 0:
+            flash("Product out of stock!", "warning")
+            return redirect(f"/user/product/{product_id}")
 
-    pid = str(product_id)
+        # Check if item already in cart
+        cursor.execute(
+            "SELECT * FROM cart WHERE user_id=%s AND product_id=%s",
+            (session['user_id'], product_id)
+        )
+        cart_item = cursor.fetchone()
 
-    # If exists → increase quantity
-    if pid in cart:
-        cart[pid]['quantity'] += 1
-    else:
-        cart[pid] = {
-            'name': product['name'],
-            'price': float(product['price']),
-            'image': product['image'],
-            'quantity': 1
-        }
+        if cart_item:
+            # product['stock'] reflects remaining stock outside cart,
+            # so if it's 0 we cannot add more
+            if product['stock'] <= 0:
+                flash(f"Only {product['stock']} items available!", "warning")
+                return redirect(f"/user/product/{product_id}")
 
-    session['cart'] = cart
+            cursor.execute(
+                "UPDATE cart SET quantity = quantity + 1 WHERE cart_id=%s",
+                (cart_item['cart_id'],)
+            )
+        else:
+            cursor.execute(
+                "INSERT INTO cart (user_id, product_id, quantity) VALUES (%s, %s, %s)",
+                (session['user_id'], product_id, 1)
+            )
 
-    flash("Item added to cart!", "success")
-    return redirect(request.referrer)
+        # Reduce product stock by 1
+        cursor.execute(
+            "UPDATE products SET stock = stock - 1 WHERE product_id=%s",
+            (product_id,)
+        )
+
+        conn.commit()
+        flash(f"{product['name']} added to cart!", "success")
+        return redirect(f"/user/product/{product_id}")
+
+    finally:
+        cursor.close()
+        conn.close()
 
 
-  
-# =================================================================
+# VIEW CART
 @app.route('/user/cart')
 def view_cart():
-
     if 'user_id' not in session:
         flash("Please login first!", "danger")
         return redirect('/user-login')
 
-    cart = session.get('cart', {})
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("""
+            SELECT c.cart_id, c.product_id, c.quantity,
+                   p.name, p.price, p.image, p.stock
+            FROM cart c
+            JOIN products p ON c.product_id = p.product_id
+            WHERE c.user_id=%s
+        """, (session['user_id'],))
+        cart_items = cursor.fetchall()
 
-    # Calculate total
-    grand_total = sum(item['price'] * item['quantity'] for item in cart.values())
+        # calculate grand total
+        grand_total = sum(item['price'] * item['quantity'] for item in cart_items)
 
-    return render_template("user/cart.html", cart=cart, grand_total=grand_total)
+        return render_template("user/cart.html", cart=cart_items, grand_total=grand_total)
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # INCREASE QUANTITY
-# =================================================================
-@app.route('/user/cart/increase/<pid>')
-def increase_quantity(pid):
+@app.route('/user/cart/increase/<int:cart_id>')
+def increase_quantity(cart_id):
+    if 'user_id' not in session:
+        flash("Please login!", "danger")
+        return redirect('/user-login')
 
-    cart = session.get('cart', {})
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        # fetch cart item
+        cursor.execute("SELECT * FROM cart WHERE cart_id=%s", (cart_id,))
+        item = cursor.fetchone()
+        if not item:
+            flash("Cart item not found!", "danger")
+            return redirect('/user/cart')
 
-    if pid in cart:
-        cart[pid]['quantity'] += 1
+        # fetch product to check available stock
+        cursor.execute("SELECT stock, name FROM products WHERE product_id=%s", (item['product_id'],))
+        product = cursor.fetchone()
+        if not product:
+            flash("Product not found!", "danger")
+            return redirect('/user/cart')
 
-    session['cart'] = cart
-    return redirect('/user/cart')
+        # if no stock left → cannot increase
+        if product['stock'] <= 0:
+            flash("No more stock available!", "warning")
+            return redirect('/user/cart')
+
+        # increase cart quantity and decrease product stock
+        cursor.execute("UPDATE cart SET quantity = quantity + 1 WHERE cart_id=%s", (cart_id,))
+        cursor.execute("UPDATE products SET stock = stock - 1 WHERE product_id=%s", (item['product_id'],))
+
+        conn.commit()
+        flash(f"Added more {product['name']}!", "success")
+        return redirect('/user/cart')
+    finally:
+        cursor.close()
+        conn.close()
+
 
 # DECREASE QUANTITY
-# =================================================================
-@app.route('/user/cart/decrease/<pid>')
-def decrease_quantity(pid):
+@app.route('/user/cart/decrease/<int:cart_id>')
+def decrease_quantity(cart_id):
+    if 'user_id' not in session:
+        flash("Please login!", "danger")
+        return redirect('/user-login')
 
-    cart = session.get('cart', {})
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        # fetch cart item
+        cursor.execute("SELECT * FROM cart WHERE cart_id=%s", (cart_id,))
+        item = cursor.fetchone()
+        if not item:
+            flash("Cart item not found!", "danger")
+            return redirect('/user/cart')
 
-    if pid in cart:
-        cart[pid]['quantity'] -= 1
+        # If quantity is 1, remove the cart row; otherwise decrement
+        if item['quantity'] <= 1:
+            cursor.execute("DELETE FROM cart WHERE cart_id=%s", (cart_id,))
+        else:
+            cursor.execute("UPDATE cart SET quantity = quantity - 1 WHERE cart_id=%s", (cart_id,))
 
-        # If quantity becomes 0 → remove item
-        if cart[pid]['quantity'] <= 0:
-            cart.pop(pid)
+        # Return one unit to product stock
+        cursor.execute("UPDATE products SET stock = stock + 1 WHERE product_id=%s", (item['product_id'],))
 
-    session['cart'] = cart
-    return redirect('/user/cart')
+        conn.commit()
+        flash("Item updated!", "success")
+        return redirect('/user/cart')
+    finally:
+        cursor.close()
+        conn.close()
+
 
 # REMOVE ITEM
-# =================================================================
-@app.route('/user/cart/remove/<pid>')
-def remove_from_cart(pid):
+@app.route('/user/cart/remove/<int:cart_id>')
+def remove_from_cart(cart_id):
+    if 'user_id' not in session:
+        flash("Please login first!", "danger")
+        return redirect('/user-login')
 
-    cart = session.get('cart', {})
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM cart WHERE cart_id=%s", (cart_id,))
+        item = cursor.fetchone()
+        if item:
+            # Return quantity to stock then remove cart row
+            cursor.execute(
+                "UPDATE products SET stock = stock + %s WHERE product_id=%s",
+                (item['quantity'], item['product_id'])
+            )
+            cursor.execute("DELETE FROM cart WHERE cart_id=%s", (cart_id,))
+            flash("Item removed!", "success")
 
-    if pid in cart:
-        cart.pop(pid)
+        conn.commit()
+        return redirect('/user/cart')
+    finally:
+        cursor.close()
+        conn.close()
+    
+    
+    
+    
+    
 
-    session['cart'] = cart
 
-    flash("Item removed!", "success")
-    return redirect('/user/cart')
+@app.route("/user/address")
+def user_address():
+    return render_template("user/address.html")
 
+
+
+
+@app.route("/user/address/save", methods=["POST"])
+def save_address():
+    # Get all form fields
+    name = request.form["name"]
+    phone = request.form["phone"]
+    pincode = request.form["pincode"]
+    state = request.form["state"]
+    city = request.form["city"]
+    address = request.form["address"]
+
+    # Get user ID from session
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/login")
+
+    # Create cursor
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    sql = """
+        INSERT INTO user_address (user_id, name, phone, pincode, state, city, address)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """
+
+    values = (user_id, name, phone, pincode, state, city, address)
+
+    # Execute SQL insert
+    cursor.execute(sql, values)
+
+    # Commit changes
+    conn.commit()
+
+    # Close cursor
+    cursor.close()
+
+    # Redirect to payment page
+    return redirect("/user/pay")
 
 
 
@@ -901,47 +1221,52 @@ razorpay_client = razorpay.Client(
 
 
 # ROUTE: CREATE RAZORPAY ORDER
-# =================================================================
-# ROUTE: CREATE RAZORPAY ORDER
-# =================================================================
 @app.route('/user/pay')
 def user_pay():
-
     if 'user_id' not in session:
-        flash("Please login!", "danger")
+        flash("Please login first!", "danger")
         return redirect('/user-login')
 
-    cart = session.get('cart', {})
+    user_id = session['user_id']
 
-    if not cart:
-        flash("Your cart is empty!", "danger")
-        return redirect('/user/products')
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
 
-    # Calculate total amount
-    total_amount = sum(item['price'] * item['quantity'] for item in cart.values())
-    razorpay_amount = int(total_amount * 100)  # convert to paise
+    cursor.execute("""
+        SELECT c.cart_id, c.product_id, c.quantity, p.name, p.price, p.image
+        FROM cart c
+        JOIN products p ON c.product_id = p.product_id
+        WHERE c.user_id = %s
+    """, (user_id,))
+
+    cart_items = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    if not cart_items:
+        flash("Your cart is empty!", "warning")
+        return redirect('/user/cart')
+
+    # Convert Decimal to float for Razorpay
+    grand_total = float(sum(item['price'] * item['quantity'] for item in cart_items))
 
     # Create Razorpay order
     razorpay_order = razorpay_client.order.create({
-        "amount": razorpay_amount,
+        "amount": int(grand_total * 100),  # Razorpay expects integer in paise
         "currency": "INR",
-        "payment_capture": "1"
+        "payment_capture": 1
     })
-
-    session['razorpay_order_id'] = razorpay_order['id']
 
     return render_template(
         "user/payment.html",
-        amount=total_amount,
+        cart=cart_items,
+        grand_total=grand_total,
+        amount=grand_total,
         key_id=config.RAZORPAY_KEY_ID,
         order_id=razorpay_order['id']
     )
 
 
-
-
-# TEMP SUCCESS PAGE (Verification in Day 13)
-# =================================================================
 # TEMP SUCCESS PAGE (Verification in Day 13)
 # =================================================================
 @app.route('/payment-success')
@@ -961,6 +1286,14 @@ def payment_success():
     )
 
 
+@app.route('/payment-failed')
+def payment_failed():
+    reason = request.args.get("reason", "Payment was not completed.")
+
+    return render_template(
+        "user/payment_failed.html",
+        reason=reason
+    )
 
 # Route: Verify Payment and Store Order
 # ------------------------------
@@ -979,7 +1312,7 @@ def verify_payment():
         flash("Payment verification failed (missing data).", "danger")
         return redirect('/user/cart')
 
-    # Build verification payload required by Razorpay client.utility
+    # Verify Razorpay signature
     payload = {
         'razorpay_order_id': razorpay_order_id,
         'razorpay_payment_id': razorpay_payment_id,
@@ -987,29 +1320,31 @@ def verify_payment():
     }
 
     try:
-        # This will raise an error if signature invalid
         razorpay_client.utility.verify_payment_signature(payload)
-
     except Exception as e:
-        # Verification failed
         app.logger.error("Razorpay signature verification failed: %s", str(e))
         flash("Payment verification failed. Please contact support.", "danger")
         return redirect('/user/cart')
 
-    # Signature verified — now store order and items into DB
     user_id = session['user_id']
-    cart = session.get('cart', {})
 
-    if not cart:
+    # Fetch cart items from DB
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT c.product_id, c.quantity, p.name, p.price
+        FROM cart c
+        JOIN products p ON c.product_id = p.product_id
+        WHERE c.user_id = %s
+    """, (user_id,))
+    cart_items = cursor.fetchall()
+
+    if not cart_items:
         flash("Cart is empty. Cannot create order.", "danger")
         return redirect('/user/products')
 
-    # Calculate total amount (ensure same as earlier)
-    total_amount = sum(item['price'] * item['quantity'] for item in cart.values())
-
-    # DB insert: orders and order_items
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    # Calculate total amount
+    total_amount = sum(item['price'] * item['quantity'] for item in cart_items)
 
     try:
         # Insert into orders table
@@ -1017,39 +1352,32 @@ def verify_payment():
             INSERT INTO orders (user_id, razorpay_order_id, razorpay_payment_id, amount, payment_status)
             VALUES (%s, %s, %s, %s, %s)
         """, (user_id, razorpay_order_id, razorpay_payment_id, total_amount, 'paid'))
+        order_db_id = cursor.lastrowid
 
-        order_db_id = cursor.lastrowid  # newly created order's primary key
-
-        # Insert all items
-        for pid_str, item in cart.items():
-            product_id = int(pid_str)
+        # Insert order items
+        for item in cart_items:
             cursor.execute("""
                 INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
                 VALUES (%s, %s, %s, %s, %s)
-            """, (order_db_id, product_id, item['name'], item['quantity'], item['price']))
+            """, (order_db_id, item['product_id'], item['name'], item['quantity'], item['price']))
 
-        # Commit transaction
+        # Clear user's cart in DB
+        cursor.execute("DELETE FROM cart WHERE user_id = %s", (user_id,))
         conn.commit()
-
-        # Clear cart and temporary razorpay order id
-        session.pop('cart', None)
-        session.pop('razorpay_order_id', None)
 
         flash("Payment successful and order placed!", "success")
         return redirect(f"/user/order-success/{order_db_id}")
 
     except Exception as e:
-        # Rollback and log error
         conn.rollback()
-        app.logger.error("Order storage failed: %s\n%s", str(e), traceback.format_exc())
+        app.logger.error("Order storage failed: %s", str(e))
         flash("There was an error saving your order. Contact support.", "danger")
         return redirect('/user/cart')
 
     finally:
         cursor.close()
         conn.close()
-        
-# ------------------------------
+
 # Route: success Payment and Store Order
 # ------------------------------
 
@@ -1062,21 +1390,41 @@ def order_success(order_db_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM orders WHERE order_id=%s AND user_id=%s", (order_db_id, session['user_id']))
+    # Fetch order
+    cursor.execute("""
+        SELECT * FROM orders 
+        WHERE order_id=%s AND user_id=%s
+    """, (order_db_id, session['user_id']))
     order = cursor.fetchone()
-
-    cursor.execute("SELECT * FROM order_items WHERE order_id=%s", (order_db_id,))
-    items = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
 
     if not order:
         flash("Order not found.", "danger")
         return redirect('/user/products')
 
-    return render_template("user/order_success.html", order=order, items=items)
+    # Fetch order items
+    cursor.execute("""
+        SELECT * FROM order_items WHERE order_id=%s
+    """, (order_db_id,))
+    items = cursor.fetchall()
 
+    # Fetch user address
+    cursor.execute("""
+        SELECT name, phone, pincode, state, city, address 
+        FROM user_address 
+        WHERE user_id=%s 
+        ORDER BY id DESC LIMIT 1
+    """, (session['user_id'],))
+    user_address = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        "user/order_success.html",
+        order=order,
+        items=items,
+        user_address=user_address
+    )
 
 
 
@@ -1119,6 +1467,17 @@ def download_invoice(order_id):
 
     cursor.execute("SELECT * FROM order_items WHERE order_id=%s", (order_id,))
     items = cursor.fetchall()
+    
+        # Fetch user address
+    cursor.execute("""
+        SELECT name, phone, pincode, state, city, address 
+        FROM user_address 
+        WHERE user_id=%s 
+        ORDER BY id DESC LIMIT 1
+    """, (session['user_id'],))
+    user_address = cursor.fetchone()
+
+    
 
     cursor.close()
     conn.close()
@@ -1128,7 +1487,7 @@ def download_invoice(order_id):
         return redirect('/user/my-orders')
 
     # Render invoice HTML
-    html = render_template("user/invoice.html", order=order, items=items)
+    html = render_template("user/invoice.html", order=order,  user_address = user_address ,items=items)
 
     pdf = generate_pdf(html)
     if not pdf:
